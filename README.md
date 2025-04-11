@@ -1,54 +1,72 @@
- package org.kotlin.unlimited
-
-// عرض الرصيد بعد التحديث
-// ورجوع المستخدم للـ Main Menu
-
-// 1. نوع المعاملة
 enum class TransactionType {
-    INCOME, // الدخل
-    EXPENSE // المصروف
+    INCOME,
+    EXPENSE
 }
 
-// 2. تعريف المعاملة
 data class Transaction(
-    val description: String, // وصف المعاملة
-    val amount: Double,      // المبلغ
-    val type: TransactionType // نوع المعاملة
+    val description: String,
+    val amount: Double,
+    val type: TransactionType
 )
 
-// دالة حساب الرصيد بعد أى عملية إيداع أو صرف
-fun showBalanceAfterUpdate(transactions: List<Transaction>) {  //بتاخد ليستة المعلومات ك input
-    val balance = transactions.sumOf { transaction ->
-        if (transaction.type == TransactionType.INCOME) {
-            transaction.amount
-        } else {
-            -transaction.amount
-        }
+fun calculateBalance(transactions: List<Transaction>): Double {
+    return transactions.sumOf {
+        if (it.type == TransactionType.INCOME) it.amount else -it.amount
     }
-
-    println("\nCurrent balance after update: $balance EGP\n")
-    println("Press Enter to return to the main menu...")
-    readln()
-    showMainMenu()  //هنا بترجع اليوزر للمنيو الرئيسى
 }
 
-// 4. دالة القائمة الرئيسية
-fun showMainMenu() {
-    println(" Main Menu ")
-    println("1. Add Income")
-    println("2. Add Expense")
-    println("3. Show Balance")
-    println("4. Exit")
-}
+// === Test Cases ===
 
-// 5. الدالة الرئيسية
-fun main() {
+fun testBalanceWithOnlyIncome() {
     val transactions = listOf(
         Transaction("Salary", 5000.0, TransactionType.INCOME),
-        Transaction("Freelance", 2000.0, TransactionType.INCOME),
-        Transaction("Rent", 1200.0, TransactionType.EXPENSE),
-        Transaction("Food", 800.0, TransactionType.EXPENSE)
+        Transaction("Bonus", 1500.0, TransactionType.INCOME)
     )
+    val balance = calculateBalance(transactions)
+    println(" Test: Only Income → Expected: 6500.0, Got: $balance")
+}
 
-    showBalanceAfterUpdate(transactions) // استدعاء الدالة عشان تعرض الرصيد
+fun testBalanceWithIncomeAndExpense() {
+    val transactions = listOf(
+        Transaction("Salary", 5000.0, TransactionType.INCOME),
+        Transaction("Rent", 2000.0, TransactionType.EXPENSE),
+        Transaction("Food", 500.0, TransactionType.EXPENSE)
+    )
+    val balance = calculateBalance(transactions)
+    println(" Test: Income & Expense → Expected: 2500.0, Got: $balance")
+}
+
+fun testBalanceWithNoTransactions() {
+    val transactions = emptyList<Transaction>()
+    val balance = calculateBalance(transactions)
+    println(" Test: No Transactions → Expected: 0.0, Got: $balance")
+}
+
+// === CLI Test Menu ===
+
+fun showTestMenu() {
+    while (true) {
+        println("\n========== Test CLI ==========")
+        println("1. Test Balance with Only Income")
+        println("2. Test Balance with Income & Expenses")
+        println("3. Test Balance with No Transactions")
+        println("4. Exit Test CLI")
+        print("Choose a test to run: ")
+
+        when (readln()) {
+            "1" -> testBalanceWithOnlyIncome()
+            "2" -> testBalanceWithIncomeAndExpense()
+            "3" -> testBalanceWithNoTransactions()
+            "4" -> {
+                println("Exiting Test CLI...")
+                return
+            }
+            else -> println(" Invalid option. Try again.")
+        }
+    }
+}
+
+// الدالة الأساسيه
+fun main() {
+    showTestMenu()
 }
